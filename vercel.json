@@ -4,7 +4,10 @@
   "framework": "nextjs",
   "regions": ["fra1"],
   "env": {
-    "MEDUSA_BACKEND_URL": "@medusa_backend_url",
-    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY": "@next_public_medusa_publishable_key"
+    "MEDUSA_BACKEND_URL": "https://medusa-backend-6uxo.onrender.com",
+    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY": "pk_d7dd14cc7169d45ea369826a2aabd033ef01f1dfd3b83c72baa41b0d08ebc50c",
+    "NEXT_PUBLIC_BASE_URL": "https://medusa-storefront-nine.vercel.app",
+    "NEXT_PUBLIC_DEFAULT_REGION": "it",
+    "REVALIDATE_SECRET": "supersecret"
   }
 }
