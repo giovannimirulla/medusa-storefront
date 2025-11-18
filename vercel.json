@@ -1,0 +1,10 @@
+{
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "env": {
+    "MEDUSA_BACKEND_URL": "@medusa_backend_url",
+    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY": "@next_public_medusa_publishable_key"
+  }
+}
