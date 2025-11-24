@@ -148,25 +148,27 @@ const ShippingAddress = ({
           Search and autofill address
         </p>
         <AddressAutocomplete
-          label="Search Italian address"
+          label="Search address"
           name="address_search"
           autoComplete="off"
           value={cityQuery}
-          onChange={(e) => setCityQuery(e.target.value)}
-          onSelect={(locality) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCityQuery(e.target.value)}
+          onSelect={(address: any) => {
             setFormData({
               ...formData,
-              "shipping_address.city": locality.locality,
-              "shipping_address.postal_code": locality.cap,
-              "shipping_address.province": locality.StateOrProvinceCode,
-              "shipping_address.country_code": locality.iso_code.toLowerCase(),
+              "shipping_address.address_1": address.address_line1 || "",
+              "shipping_address.address_2": address.address_line2 || "",
+              "shipping_address.city": address.city,
+              "shipping_address.postal_code": address.postal_code,
+              "shipping_address.province": address.province || "",
+              "shipping_address.country_code": address.country_code.toLowerCase(),
             })
             setCityQuery("")
           }}
           results={cityResults}
           isLoading={isCityLoading}
           error={cityError}
-          placeholder="Type a city name (e.g., Milano, Roma...)"
+          placeholder="Type an address (e.g., Via Roma 10, Milano...)"
           data-testid="address-search-autocomplete"
         />
       </Container>

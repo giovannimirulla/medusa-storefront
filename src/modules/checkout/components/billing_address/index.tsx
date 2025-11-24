@@ -49,25 +49,27 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           Search and autofill address
         </p>
         <AddressAutocomplete
-          label="Search Italian address"
+          label="Search address"
           name="address_search"
           autoComplete="off"
           value={cityQuery}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCityQuery(e.target.value)}
-          onSelect={(locality: any) => {
+          onSelect={(address: any) => {
             setFormData({
               ...formData,
-              "billing_address.city": locality.locality,
-              "billing_address.postal_code": locality.cap,
-              "billing_address.province": locality.StateOrProvinceCode,
-              "billing_address.country_code": locality.iso_code.toLowerCase(),
+              "billing_address.address_1": address.address_line1 || "",
+              "billing_address.address_2": address.address_line2 || "",
+              "billing_address.city": address.city,
+              "billing_address.postal_code": address.postal_code,
+              "billing_address.province": address.province || "",
+              "billing_address.country_code": address.country_code.toLowerCase(),
             })
             setCityQuery("")
           }}
           results={cityResults}
           isLoading={isCityLoading}
           error={cityError}
-          placeholder="Type a city name (e.g., Milano, Roma...)"
+          placeholder="Type an address (e.g., Via Roma 10, Milano...)"
           data-testid="address-search-autocomplete"
         />
       </div>
