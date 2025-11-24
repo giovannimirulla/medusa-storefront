@@ -2,6 +2,8 @@ import { HttpTypes } from "@medusajs/types"
 import Input from "@modules/common/components/input"
 import React, { useState } from "react"
 import CountrySelect from "../country-select"
+import AddressAutocomplete from "../address-autocomplete"
+import { useAddressAutocomplete } from "@lib/hooks/use-address-autocomplete"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   const [formData, setFormData] = useState<any>({
@@ -25,6 +27,35 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
       ...formData,
       [e.target.name]: e.target.value,
     })
+  }
+
+  // Hook per l'autocomplete della città usando PaccoFacile
+  const {
+    query: cityQuery,
+    setQuery: setCityQuery,
+    results: cityResults,
+    isLoading: isCityLoading,
+    error: cityError,
+    selectLocality,
+  } = useAddressAutocomplete({
+    countryCode: formData["billing_address.country_code"] || "IT",
+    onSelect: (locality) => {
+      setFormData({
+        ...formData,
+        "billing_address.city": locality.locality,
+        "billing_address.postal_code": locality.cap,
+        "billing_address.province": locality.StateOrProvinceCode,
+      })
+    },
+  })
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData({
+      ...formData,
+      [e.target.name]: value,
+    })
+    setCityQuery(value)
   }
 
   return (
@@ -57,6 +88,15 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           required
           data-testid="billing-address-input"
         />
+                  <Input
+          label="Numero civico"
+          name="shipping_address.address_2"
+          autoComplete="address-line2"
+          value={formData["shipping_address.address_2"]}
+          onChange={handleChange}
+          required
+          data-testid="shipping-address-input"
+        />
         <Input
           label="Company"
           name="billing_address.company"
@@ -74,12 +114,17 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           required
           data-testid="billing-postal-input"
         />
-        <Input
+        <AddressAutocomplete
           label="City"
           name="billing_address.city"
           autoComplete="address-level2"
           value={formData["billing_address.city"]}
-          onChange={handleChange}
+          onChange={handleCityChange}
+          onSelect={selectLocality}
+          results={cityResults}
+          isLoading={isCityLoading}
+          error={cityError}
+          data-testid="billing-city-input"
         />
         <CountrySelect
           name="billing_address.country_code"

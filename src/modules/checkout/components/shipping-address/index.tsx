@@ -6,6 +6,8 @@ import { mapKeys } from "lodash"
 import React, { useEffect, useMemo, useState } from "react"
 import AddressSelect from "../address-select"
 import CountrySelect from "../country-select"
+import AddressAutocomplete from "../address-autocomplete"
+import { useAddressAutocomplete } from "@lib/hooks/use-address-autocomplete"
 
 const ShippingAddress = ({
   customer,
@@ -92,6 +94,35 @@ const ShippingAddress = ({
     })
   }
 
+  // Hook per l'autocomplete della città usando PaccoFacile
+  const {
+    query: cityQuery,
+    setQuery: setCityQuery,
+    results: cityResults,
+    isLoading: isCityLoading,
+    error: cityError,
+    selectLocality,
+  } = useAddressAutocomplete({
+    countryCode: formData["shipping_address.country_code"] || "IT",
+    onSelect: (locality) => {
+      setFormData({
+        ...formData,
+        "shipping_address.city": locality.locality,
+        "shipping_address.postal_code": locality.cap,
+        "shipping_address.province": locality.StateOrProvinceCode,
+      })
+    },
+  })
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData({
+      ...formData,
+      [e.target.name]: value,
+    })
+    setCityQuery(value)
+  }
+
   return (
     <>
       {customer && (addressesInRegion?.length || 0) > 0 && (
@@ -138,6 +169,15 @@ const ShippingAddress = ({
           required
           data-testid="shipping-address-input"
         />
+                <Input
+          label="Numero civico"
+          name="shipping_address.address_2"
+          autoComplete="address-line2"
+          value={formData["shipping_address.address_2"]}
+          onChange={handleChange}
+          required
+          data-testid="shipping-address-input"
+        />
         <Input
           label="Company"
           name="shipping_address.company"
@@ -155,12 +195,16 @@ const ShippingAddress = ({
           required
           data-testid="shipping-postal-code-input"
         />
-        <Input
+        <AddressAutocomplete
           label="City"
           name="shipping_address.city"
           autoComplete="address-level2"
           value={formData["shipping_address.city"]}
-          onChange={handleChange}
+          onChange={handleCityChange}
+          onSelect={selectLocality}
+          results={cityResults}
+          isLoading={isCityLoading}
+          error={cityError}
           required
           data-testid="shipping-city-input"
         />
