@@ -141,6 +141,36 @@ const ShippingAddress = ({
           />
         </Container>
       )}
+      
+      {/* Campo autocomplete indirizzo sopra il form */}
+      <Container className="mb-6 flex flex-col gap-y-4 p-5">
+        <p className="text-small-regular font-semibold">
+          Search and autofill address
+        </p>
+        <AddressAutocomplete
+          label="Search Italian address"
+          name="address_search"
+          autoComplete="off"
+          value={cityQuery}
+          onChange={(e) => setCityQuery(e.target.value)}
+          onSelect={(locality) => {
+            setFormData({
+              ...formData,
+              "shipping_address.city": locality.locality,
+              "shipping_address.postal_code": locality.cap,
+              "shipping_address.province": locality.StateOrProvinceCode,
+              "shipping_address.country_code": locality.iso_code.toLowerCase(),
+            })
+            setCityQuery("")
+          }}
+          results={cityResults}
+          isLoading={isCityLoading}
+          error={cityError}
+          placeholder="Type a city name (e.g., Milano, Roma...)"
+          data-testid="address-search-autocomplete"
+        />
+      </Container>
+
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="First name"
@@ -195,16 +225,12 @@ const ShippingAddress = ({
           required
           data-testid="shipping-postal-code-input"
         />
-        <AddressAutocomplete
+        <Input
           label="City"
           name="shipping_address.city"
           autoComplete="address-level2"
           value={formData["shipping_address.city"]}
-          onChange={handleCityChange}
-          onSelect={selectLocality}
-          results={cityResults}
-          isLoading={isCityLoading}
-          error={cityError}
+          onChange={handleChange}
           required
           data-testid="shipping-city-input"
         />

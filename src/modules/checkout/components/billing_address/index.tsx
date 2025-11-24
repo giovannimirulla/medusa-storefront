@@ -10,6 +10,7 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
     "billing_address.first_name": cart?.billing_address?.first_name || "",
     "billing_address.last_name": cart?.billing_address?.last_name || "",
     "billing_address.address_1": cart?.billing_address?.address_1 || "",
+    "billing_address.address_2": cart?.billing_address?.address_2 || "",
     "billing_address.company": cart?.billing_address?.company || "",
     "billing_address.postal_code": cart?.billing_address?.postal_code || "",
     "billing_address.city": cart?.billing_address?.city || "",
@@ -29,37 +30,48 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
     })
   }
 
-  // Hook per l'autocomplete della città usando PaccoFacile
+  // Hook per l'autocomplete della località usando PaccoFacile (solo per ricerca sopra form)
   const {
     query: cityQuery,
     setQuery: setCityQuery,
     results: cityResults,
     isLoading: isCityLoading,
     error: cityError,
-    selectLocality,
   } = useAddressAutocomplete({
     countryCode: formData["billing_address.country_code"] || "IT",
-    onSelect: (locality) => {
-      setFormData({
-        ...formData,
-        "billing_address.city": locality.locality,
-        "billing_address.postal_code": locality.cap,
-        "billing_address.province": locality.StateOrProvinceCode,
-      })
-    },
   })
-
-  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setFormData({
-      ...formData,
-      [e.target.name]: value,
-    })
-    setCityQuery(value)
-  }
 
   return (
     <>
+      {/* Campo autocomplete indirizzo sopra il form */}
+      <div className="mb-6 flex flex-col gap-y-4">
+        <p className="text-small-regular font-semibold">
+          Search and autofill address
+        </p>
+        <AddressAutocomplete
+          label="Search Italian address"
+          name="address_search"
+          autoComplete="off"
+          value={cityQuery}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCityQuery(e.target.value)}
+          onSelect={(locality: any) => {
+            setFormData({
+              ...formData,
+              "billing_address.city": locality.locality,
+              "billing_address.postal_code": locality.cap,
+              "billing_address.province": locality.StateOrProvinceCode,
+              "billing_address.country_code": locality.iso_code.toLowerCase(),
+            })
+            setCityQuery("")
+          }}
+          results={cityResults}
+          isLoading={isCityLoading}
+          error={cityError}
+          placeholder="Type a city name (e.g., Milano, Roma...)"
+          data-testid="address-search-autocomplete"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="First name"
@@ -88,14 +100,14 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           required
           data-testid="billing-address-input"
         />
-                  <Input
+        <Input
           label="Numero civico"
-          name="shipping_address.address_2"
+          name="billing_address.address_2"
           autoComplete="address-line2"
-          value={formData["shipping_address.address_2"]}
+          value={formData["billing_address.address_2"]}
           onChange={handleChange}
           required
-          data-testid="shipping-address-input"
+          data-testid="billing-address-2-input"
         />
         <Input
           label="Company"
@@ -114,16 +126,13 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           required
           data-testid="billing-postal-input"
         />
-        <AddressAutocomplete
+        <Input
           label="City"
           name="billing_address.city"
           autoComplete="address-level2"
           value={formData["billing_address.city"]}
-          onChange={handleCityChange}
-          onSelect={selectLocality}
-          results={cityResults}
-          isLoading={isCityLoading}
-          error={cityError}
+          onChange={handleChange}
+          required
           data-testid="billing-city-input"
         />
         <CountrySelect
