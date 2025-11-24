@@ -37,10 +37,13 @@ export const useAddressAutocomplete = ({
       try {
         // Chiamata all'API del backend Medusa
         const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+        const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+        
         const response = await fetch(`${backendUrl}/store/paccofacile/locality/validation`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-publishable-api-key": publishableKey || "",
           },
           body: JSON.stringify({
             iso_code: countryCode,
