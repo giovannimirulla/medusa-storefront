@@ -32,13 +32,24 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
 
   // Hook per l'autocomplete della località usando PaccoFacile (solo per ricerca sopra form)
   const {
-    query: cityQuery,
-    setQuery: setCityQuery,
-    results: cityResults,
-    isLoading: isCityLoading,
-    error: cityError,
+    query: addressQuery,
+    setQuery: setAddressQuery,
+    results: addressResults,
+    isLoading: isAddressLoading,
+    error: addressError,
   } = useAddressAutocomplete({
-    countryCode: formData["billing_address.country_code"] || "IT",
+    regionId: cart?.region_id,
+    onSelect: (address) => {
+      setFormData({
+        ...formData,
+        "billing_address.address_1": address.address || "",
+        "billing_address.address_2": address.building_number || "",
+        "billing_address.city": address.city || "",
+        "billing_address.postal_code": address.postal_code || "",
+        "billing_address.province": address.province || "",
+        "billing_address.country_code": address.country_code?.toLowerCase() || "",
+      })
+    },
   })
 
   return (
@@ -52,23 +63,23 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="Search address"
           name="address_search"
           autoComplete="off"
-          value={cityQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCityQuery(e.target.value)}
+          value={addressQuery}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddressQuery(e.target.value)}
           onSelect={(address: any) => {
             setFormData({
               ...formData,
-              "billing_address.address_1": address.address_line1 || "",
-              "billing_address.address_2": address.address_line2 || "",
+              "billing_address.address_1": address.address || "",
+              "billing_address.address_2": address.building_number || "",
               "billing_address.city": address.city,
               "billing_address.postal_code": address.postal_code,
               "billing_address.province": address.province || "",
               "billing_address.country_code": address.country_code.toLowerCase(),
             })
-            setCityQuery("")
+            setAddressQuery("")
           }}
-          results={cityResults}
-          isLoading={isCityLoading}
-          error={cityError}
+          results={addressResults}
+          isLoading={isAddressLoading}
+          error={addressError}
           placeholder="Type an address (e.g., Via Roma 10, Milano...)"
           data-testid="address-search-autocomplete"
         />

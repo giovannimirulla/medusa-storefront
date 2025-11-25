@@ -5,11 +5,11 @@ import Input from "@modules/common/components/input"
 interface AddressResult {
   id: string
   display_name: string
-  address_line1: string
-  address_line2?: string
+  address: string
+  building_number: string
   city: string
   postal_code: string
-  province?: string
+  province: string
   country_code: string
   latitude: number
   longitude: number
@@ -115,7 +115,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
                     {address.display_name}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {address.address_line1} - {address.postal_code} {address.city}
+                    {address.address} {address.building_number} - {address.postal_code} {address.city} ({address.province})
                   </div>
                 </li>
               ))}

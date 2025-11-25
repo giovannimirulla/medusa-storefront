@@ -4,23 +4,23 @@ import { debounce } from "lodash"
 interface AddressResult {
   id: string
   display_name: string
-  address_line1: string
-  address_line2?: string
+  address: string
+  building_number: string
   city: string
   postal_code: string
-  province?: string
+  province: string
   country_code: string
   latitude: number
   longitude: number
 }
 
 interface UseAddressAutocompleteProps {
-  countryCode?: string
+  regionId?: string // Region ID per ottenere i paesi disponibili
   onSelect?: (address: AddressResult) => void
 }
 
 export const useAddressAutocomplete = ({
-  countryCode = "IT",
+  regionId,
   onSelect,
 }: UseAddressAutocompleteProps) => {
   const [query, setQuery] = useState("")
@@ -32,6 +32,11 @@ export const useAddressAutocomplete = ({
     async (searchTerm: string) => {
       if (!searchTerm || searchTerm.length < 3) {
         setResults([])
+        return
+      }
+
+      if (!regionId) {
+        setError("Region ID is required")
         return
       }
 
@@ -50,7 +55,28 @@ export const useAddressAutocomplete = ({
           },
           body: JSON.stringify({
             query: searchTerm,
-            countryCode: countryCode,
+            region_id: regionId,
+            limit: 5,
+          }),
+        })
+      }
+
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+        const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+        
+        const response = await fetch(`${backendUrl}/store/address/autocomplete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-publishable-api-key": publishableKey || "",
+          },
+          body: JSON.stringify({
+            query: searchTerm,
+            region_id: regionId,
             limit: 5,
           }),
         })
@@ -69,7 +95,7 @@ export const useAddressAutocomplete = ({
         setIsLoading(false)
       }
     },
-    [countryCode]
+    [regionId]
   )
 
   // Debounce la ricerca per evitare troppe chiamate API
