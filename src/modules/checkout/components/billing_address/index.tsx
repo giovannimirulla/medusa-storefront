@@ -114,12 +114,11 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           data-testid="billing-address-input"
         />
         <Input
-          label="Numero civico"
+          label="Building number"
           name="billing_address.address_2"
           autoComplete="address-line2"
           value={formData["billing_address.address_2"]}
           onChange={handleChange}
-          required
           data-testid="billing-address-2-input"
         />
         <Input
