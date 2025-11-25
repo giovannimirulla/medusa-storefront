@@ -36,10 +36,13 @@ export const useAddressAutocomplete = ({
       }
 
       if (!regionId) {
+        console.error("Region ID is missing:", regionId)
         setError("Region ID is required")
         return
       }
 
+      console.log("Searching address with region_id:", regionId)
+      
       setIsLoading(true)
       setError(null)
 
@@ -47,26 +50,13 @@ export const useAddressAutocomplete = ({
         const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
         const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
         
-        const response = await fetch(`${backendUrl}/store/address/autocomplete`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-publishable-api-key": publishableKey || "",
-          },
-          body: JSON.stringify({
-            query: searchTerm,
-            region_id: regionId,
-            limit: 5,
-          }),
-        })
-      }
-
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
-        const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+        const payload = {
+          query: searchTerm,
+          region_id: regionId,
+          limit: 5,
+        }
+        
+        console.log("Sending payload:", payload)
         
         const response = await fetch(`${backendUrl}/store/address/autocomplete`, {
           method: "POST",
@@ -74,15 +64,13 @@ export const useAddressAutocomplete = ({
             "Content-Type": "application/json",
             "x-publishable-api-key": publishableKey || "",
           },
-          body: JSON.stringify({
-            query: searchTerm,
-            region_id: regionId,
-            limit: 5,
-          }),
+          body: JSON.stringify(payload),
         })
 
         if (!response.ok) {
-          throw new Error("Failed to fetch address suggestions")
+          const errorData = await response.json().catch(() => ({}))
+          console.error("API error:", errorData)
+          throw new Error(errorData.message || "Failed to fetch address suggestions")
         }
 
         const data = await response.json()
